@@ -8,7 +8,7 @@ from unicorn.arm64_const import *
 
 
 # code to be emulated
-ARM64_CODE = "\xab\x01\x0f\x8b" #add x11, x13, x15
+ARM64_CODE = b"\xab\x01\x0f\x8b" #add x11, x13, x15
 
 # memory address where emulation starts
 ADDRESS    = 0x10000
@@ -21,7 +21,7 @@ def hook_block(uc, address, size, user_data):
 
 # callback for tracing instructions
 def hook_code(uc, address, size, user_data):
-    print(">>> Tracing instruction at 0x%x, instruction size = %u" %(address, size))
+    print(">>> Tracing instruction at 0x%x, instruction size = 0x%x" %(address, size))
 
 
 # Test ARM64

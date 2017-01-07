@@ -14,6 +14,7 @@
 #define memory_map_ptr memory_map_ptr_mips64el
 #define memory_unmap memory_unmap_mips64el
 #define memory_free memory_free_mips64el
+#define free_code_gen_buffer free_code_gen_buffer_mips64el
 #define helper_raise_exception helper_raise_exception_mips64el
 #define tcg_enabled tcg_enabled_mips64el
 #define tcg_exec_init tcg_exec_init_mips64el
@@ -2175,19 +2176,15 @@
 #define object_property_allow_set_link object_property_allow_set_link_mips64el
 #define object_property_del object_property_del_mips64el
 #define object_property_del_all object_property_del_all_mips64el
-#define object_property_del_child object_property_del_child_mips64el
 #define object_property_find object_property_find_mips64el
 #define object_property_get object_property_get_mips64el
 #define object_property_get_bool object_property_get_bool_mips64el
-#define object_property_get_enum object_property_get_enum_mips64el
 #define object_property_get_int object_property_get_int_mips64el
 #define object_property_get_link object_property_get_link_mips64el
 #define object_property_get_qobject object_property_get_qobject_mips64el
 #define object_property_get_str object_property_get_str_mips64el
 #define object_property_get_type object_property_get_type_mips64el
-#define object_property_get_uint16List object_property_get_uint16List_mips64el
 #define object_property_is_child object_property_is_child_mips64el
-#define object_property_print object_property_print_mips64el
 #define object_property_set object_property_set_mips64el
 #define object_property_set_description object_property_set_description_mips64el
 #define object_property_set_link object_property_set_link_mips64el
@@ -2258,7 +2255,6 @@
 #define parse_value parse_value_mips64el
 #define par_write par_write_mips64el
 #define patch_reloc patch_reloc_mips64el
-#define pause_all_vcpus pause_all_vcpus_mips64el
 #define phys_map_node_alloc phys_map_node_alloc_mips64el
 #define phys_map_node_reserve phys_map_node_reserve_mips64el
 #define phys_mem_alloc phys_mem_alloc_mips64el
@@ -2417,9 +2413,6 @@
 #define qemu_clock_get_us qemu_clock_get_us_mips64el
 #define qemu_clock_ptr qemu_clock_ptr_mips64el
 #define qemu_clocks qemu_clocks_mips64el
-#define qemu_cond_destroy qemu_cond_destroy_mips64el
-#define qemu_cpu_is_self qemu_cpu_is_self_mips64el
-#define qemu_cpu_kick_thread qemu_cpu_kick_thread_mips64el
 #define qemu_daemon qemu_daemon_mips64el
 #define qemu_event_destroy qemu_event_destroy_mips64el
 #define qemu_event_init qemu_event_init_mips64el
@@ -2431,7 +2424,6 @@
 #define qemu_get_cpu qemu_get_cpu_mips64el
 #define qemu_get_guest_memory_mapping qemu_get_guest_memory_mapping_mips64el
 #define qemu_get_guest_simple_memory_mapping qemu_get_guest_simple_memory_mapping_mips64el
-#define qemu_get_local_state_pathname qemu_get_local_state_pathname_mips64el
 #define qemu_get_ram_block qemu_get_ram_block_mips64el
 #define qemu_get_ram_block_host_ptr qemu_get_ram_block_host_ptr_mips64el
 #define qemu_get_ram_fd qemu_get_ram_fd_mips64el
@@ -2445,7 +2437,6 @@
 #define qemu_log_flush qemu_log_flush_mips64el
 #define qemu_loglevel_mask qemu_loglevel_mask_mips64el
 #define qemu_log_vprintf qemu_log_vprintf_mips64el
-#define qemu_mutex_destroy qemu_mutex_destroy_mips64el
 #define qemu_mutex_lock_ramlist qemu_mutex_lock_ramlist_mips64el
 #define qemu_mutex_trylock qemu_mutex_trylock_mips64el
 #define qemu_mutex_unlock_ramlist qemu_mutex_unlock_ramlist_mips64el
@@ -2516,9 +2507,7 @@
 #define qemu_st_helpers qemu_st_helpers_mips64el
 #define qemu_strnlen qemu_strnlen_mips64el
 #define qemu_strsep qemu_strsep_mips64el
-#define qemu_tcg_cpu_thread_fn qemu_tcg_cpu_thread_fn_mips64el
 #define qemu_tcg_init_vcpu qemu_tcg_init_vcpu_mips64el
-#define qemu_thread_exit qemu_thread_exit_mips64el
 #define qemu_try_memalign qemu_try_memalign_mips64el
 #define qentry_destroy qentry_destroy_mips64el
 #define qerror_human qerror_human_mips64el
@@ -2723,13 +2712,6 @@
 #define string_input_get_visitor string_input_get_visitor_mips64el
 #define string_input_visitor_cleanup string_input_visitor_cleanup_mips64el
 #define string_input_visitor_new string_input_visitor_new_mips64el
-#define string_output_append string_output_append_mips64el
-#define string_output_append_range string_output_append_range_mips64el
-#define string_output_get_string string_output_get_string_mips64el
-#define string_output_get_visitor string_output_get_visitor_mips64el
-#define string_output_set string_output_set_mips64el
-#define string_output_visitor_cleanup string_output_visitor_cleanup_mips64el
-#define string_output_visitor_new string_output_visitor_new_mips64el
 #define stristart stristart_mips64el
 #define strongarm_cp_reginfo strongarm_cp_reginfo_mips64el
 #define strpadcpy strpadcpy_mips64el
@@ -4077,4 +4059,5 @@
 #define mips_reg_write mips_reg_write_mips64el
 #define mips_tcg_init mips_tcg_init_mips64el
 #define mips_cpu_list mips_cpu_list_mips64el
+#define mips_release mips_release_mips64el
 #endif

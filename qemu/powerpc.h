@@ -14,6 +14,7 @@
 #define memory_map_ptr memory_map_ptr_powerpc
 #define memory_unmap memory_unmap_powerpc
 #define memory_free memory_free_powerpc
+#define free_code_gen_buffer free_code_gen_buffer_powerpc
 #define helper_raise_exception helper_raise_exception_powerpc
 #define tcg_enabled tcg_enabled_powerpc
 #define tcg_exec_init tcg_exec_init_powerpc
@@ -2175,19 +2176,15 @@
 #define object_property_allow_set_link object_property_allow_set_link_powerpc
 #define object_property_del object_property_del_powerpc
 #define object_property_del_all object_property_del_all_powerpc
-#define object_property_del_child object_property_del_child_powerpc
 #define object_property_find object_property_find_powerpc
 #define object_property_get object_property_get_powerpc
 #define object_property_get_bool object_property_get_bool_powerpc
-#define object_property_get_enum object_property_get_enum_powerpc
 #define object_property_get_int object_property_get_int_powerpc
 #define object_property_get_link object_property_get_link_powerpc
 #define object_property_get_qobject object_property_get_qobject_powerpc
 #define object_property_get_str object_property_get_str_powerpc
 #define object_property_get_type object_property_get_type_powerpc
-#define object_property_get_uint16List object_property_get_uint16List_powerpc
 #define object_property_is_child object_property_is_child_powerpc
-#define object_property_print object_property_print_powerpc
 #define object_property_set object_property_set_powerpc
 #define object_property_set_description object_property_set_description_powerpc
 #define object_property_set_link object_property_set_link_powerpc
@@ -2258,7 +2255,6 @@
 #define parse_value parse_value_powerpc
 #define par_write par_write_powerpc
 #define patch_reloc patch_reloc_powerpc
-#define pause_all_vcpus pause_all_vcpus_powerpc
 #define phys_map_node_alloc phys_map_node_alloc_powerpc
 #define phys_map_node_reserve phys_map_node_reserve_powerpc
 #define phys_mem_alloc phys_mem_alloc_powerpc
@@ -2417,9 +2413,6 @@
 #define qemu_clock_get_us qemu_clock_get_us_powerpc
 #define qemu_clock_ptr qemu_clock_ptr_powerpc
 #define qemu_clocks qemu_clocks_powerpc
-#define qemu_cond_destroy qemu_cond_destroy_powerpc
-#define qemu_cpu_is_self qemu_cpu_is_self_powerpc
-#define qemu_cpu_kick_thread qemu_cpu_kick_thread_powerpc
 #define qemu_daemon qemu_daemon_powerpc
 #define qemu_event_destroy qemu_event_destroy_powerpc
 #define qemu_event_init qemu_event_init_powerpc
@@ -2431,7 +2424,6 @@
 #define qemu_get_cpu qemu_get_cpu_powerpc
 #define qemu_get_guest_memory_mapping qemu_get_guest_memory_mapping_powerpc
 #define qemu_get_guest_simple_memory_mapping qemu_get_guest_simple_memory_mapping_powerpc
-#define qemu_get_local_state_pathname qemu_get_local_state_pathname_powerpc
 #define qemu_get_ram_block qemu_get_ram_block_powerpc
 #define qemu_get_ram_block_host_ptr qemu_get_ram_block_host_ptr_powerpc
 #define qemu_get_ram_fd qemu_get_ram_fd_powerpc
@@ -2445,7 +2437,6 @@
 #define qemu_log_flush qemu_log_flush_powerpc
 #define qemu_loglevel_mask qemu_loglevel_mask_powerpc
 #define qemu_log_vprintf qemu_log_vprintf_powerpc
-#define qemu_mutex_destroy qemu_mutex_destroy_powerpc
 #define qemu_mutex_lock_ramlist qemu_mutex_lock_ramlist_powerpc
 #define qemu_mutex_trylock qemu_mutex_trylock_powerpc
 #define qemu_mutex_unlock_ramlist qemu_mutex_unlock_ramlist_powerpc
@@ -2516,9 +2507,7 @@
 #define qemu_st_helpers qemu_st_helpers_powerpc
 #define qemu_strnlen qemu_strnlen_powerpc
 #define qemu_strsep qemu_strsep_powerpc
-#define qemu_tcg_cpu_thread_fn qemu_tcg_cpu_thread_fn_powerpc
 #define qemu_tcg_init_vcpu qemu_tcg_init_vcpu_powerpc
-#define qemu_thread_exit qemu_thread_exit_powerpc
 #define qemu_try_memalign qemu_try_memalign_powerpc
 #define qentry_destroy qentry_destroy_powerpc
 #define qerror_human qerror_human_powerpc
@@ -2723,13 +2712,6 @@
 #define string_input_get_visitor string_input_get_visitor_powerpc
 #define string_input_visitor_cleanup string_input_visitor_cleanup_powerpc
 #define string_input_visitor_new string_input_visitor_new_powerpc
-#define string_output_append string_output_append_powerpc
-#define string_output_append_range string_output_append_range_powerpc
-#define string_output_get_string string_output_get_string_powerpc
-#define string_output_get_visitor string_output_get_visitor_powerpc
-#define string_output_set string_output_set_powerpc
-#define string_output_visitor_cleanup string_output_visitor_cleanup_powerpc
-#define string_output_visitor_new string_output_visitor_new_powerpc
 #define stristart stristart_powerpc
 #define strongarm_cp_reginfo strongarm_cp_reginfo_powerpc
 #define strpadcpy strpadcpy_powerpc

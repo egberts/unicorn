@@ -14,6 +14,7 @@
 #define memory_map_ptr memory_map_ptr_aarch64
 #define memory_unmap memory_unmap_aarch64
 #define memory_free memory_free_aarch64
+#define free_code_gen_buffer free_code_gen_buffer_aarch64
 #define helper_raise_exception helper_raise_exception_aarch64
 #define tcg_enabled tcg_enabled_aarch64
 #define tcg_exec_init tcg_exec_init_aarch64
@@ -2175,19 +2176,15 @@
 #define object_property_allow_set_link object_property_allow_set_link_aarch64
 #define object_property_del object_property_del_aarch64
 #define object_property_del_all object_property_del_all_aarch64
-#define object_property_del_child object_property_del_child_aarch64
 #define object_property_find object_property_find_aarch64
 #define object_property_get object_property_get_aarch64
 #define object_property_get_bool object_property_get_bool_aarch64
-#define object_property_get_enum object_property_get_enum_aarch64
 #define object_property_get_int object_property_get_int_aarch64
 #define object_property_get_link object_property_get_link_aarch64
 #define object_property_get_qobject object_property_get_qobject_aarch64
 #define object_property_get_str object_property_get_str_aarch64
 #define object_property_get_type object_property_get_type_aarch64
-#define object_property_get_uint16List object_property_get_uint16List_aarch64
 #define object_property_is_child object_property_is_child_aarch64
-#define object_property_print object_property_print_aarch64
 #define object_property_set object_property_set_aarch64
 #define object_property_set_description object_property_set_description_aarch64
 #define object_property_set_link object_property_set_link_aarch64
@@ -2258,7 +2255,6 @@
 #define parse_value parse_value_aarch64
 #define par_write par_write_aarch64
 #define patch_reloc patch_reloc_aarch64
-#define pause_all_vcpus pause_all_vcpus_aarch64
 #define phys_map_node_alloc phys_map_node_alloc_aarch64
 #define phys_map_node_reserve phys_map_node_reserve_aarch64
 #define phys_mem_alloc phys_mem_alloc_aarch64
@@ -2417,9 +2413,6 @@
 #define qemu_clock_get_us qemu_clock_get_us_aarch64
 #define qemu_clock_ptr qemu_clock_ptr_aarch64
 #define qemu_clocks qemu_clocks_aarch64
-#define qemu_cond_destroy qemu_cond_destroy_aarch64
-#define qemu_cpu_is_self qemu_cpu_is_self_aarch64
-#define qemu_cpu_kick_thread qemu_cpu_kick_thread_aarch64
 #define qemu_daemon qemu_daemon_aarch64
 #define qemu_event_destroy qemu_event_destroy_aarch64
 #define qemu_event_init qemu_event_init_aarch64
@@ -2431,7 +2424,6 @@
 #define qemu_get_cpu qemu_get_cpu_aarch64
 #define qemu_get_guest_memory_mapping qemu_get_guest_memory_mapping_aarch64
 #define qemu_get_guest_simple_memory_mapping qemu_get_guest_simple_memory_mapping_aarch64
-#define qemu_get_local_state_pathname qemu_get_local_state_pathname_aarch64
 #define qemu_get_ram_block qemu_get_ram_block_aarch64
 #define qemu_get_ram_block_host_ptr qemu_get_ram_block_host_ptr_aarch64
 #define qemu_get_ram_fd qemu_get_ram_fd_aarch64
@@ -2445,7 +2437,6 @@
 #define qemu_log_flush qemu_log_flush_aarch64
 #define qemu_loglevel_mask qemu_loglevel_mask_aarch64
 #define qemu_log_vprintf qemu_log_vprintf_aarch64
-#define qemu_mutex_destroy qemu_mutex_destroy_aarch64
 #define qemu_mutex_lock_ramlist qemu_mutex_lock_ramlist_aarch64
 #define qemu_mutex_trylock qemu_mutex_trylock_aarch64
 #define qemu_mutex_unlock_ramlist qemu_mutex_unlock_ramlist_aarch64
@@ -2516,9 +2507,7 @@
 #define qemu_st_helpers qemu_st_helpers_aarch64
 #define qemu_strnlen qemu_strnlen_aarch64
 #define qemu_strsep qemu_strsep_aarch64
-#define qemu_tcg_cpu_thread_fn qemu_tcg_cpu_thread_fn_aarch64
 #define qemu_tcg_init_vcpu qemu_tcg_init_vcpu_aarch64
-#define qemu_thread_exit qemu_thread_exit_aarch64
 #define qemu_try_memalign qemu_try_memalign_aarch64
 #define qentry_destroy qentry_destroy_aarch64
 #define qerror_human qerror_human_aarch64
@@ -2723,13 +2712,6 @@
 #define string_input_get_visitor string_input_get_visitor_aarch64
 #define string_input_visitor_cleanup string_input_visitor_cleanup_aarch64
 #define string_input_visitor_new string_input_visitor_new_aarch64
-#define string_output_append string_output_append_aarch64
-#define string_output_append_range string_output_append_range_aarch64
-#define string_output_get_string string_output_get_string_aarch64
-#define string_output_get_visitor string_output_get_visitor_aarch64
-#define string_output_set string_output_set_aarch64
-#define string_output_visitor_cleanup string_output_visitor_cleanup_aarch64
-#define string_output_visitor_new string_output_visitor_new_aarch64
 #define stristart stristart_aarch64
 #define strongarm_cp_reginfo strongarm_cp_reginfo_aarch64
 #define strpadcpy strpadcpy_aarch64

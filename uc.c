@@ -1,9 +1,6 @@
 /* Unicorn Emulator Engine */
 /* By Nguyen Anh Quynh <aquynh@gmail.com>, 2015 */
 
-#if defined (WIN32) || defined (WIN64) || defined (_WIN32) || defined (_WIN64)
-#pragma warning(disable:4996)
-#endif
 #if defined(UNICORN_HAS_OSXKERNEL)
 #include <libkern/libkern.h>
 #else
@@ -15,9 +12,6 @@
 #include <time.h>   // nanosleep
 
 #include <string.h>
-#ifndef _WIN32
-#include <sys/mman.h>
-#endif
 
 #include "uc_priv.h"
 
@@ -29,7 +23,16 @@
 #include "qemu/target-sparc/unicorn.h"
 
 #include "qemu/include/hw/boards.h"
+#include "qemu/include/qemu/queue.h"
 
+static void free_table(gpointer key, gpointer value, gpointer data)
+{
+    TypeInfo *ti = (TypeInfo*) value;
+    g_free((void*) ti->class);
+    g_free((void*) ti->name);
+    g_free((void*) ti->parent);
+    g_free((void*) ti);
+}
 
 UNICORN_EXPORT
 unsigned int uc_version(unsigned int *major, unsigned int *minor)
@@ -96,6 +99,8 @@ const char *uc_strerror(uc_err code)
             return "Fetch from unaligned memory (UC_ERR_FETCH_UNALIGNED)";
         case UC_ERR_RESOURCE:
             return "Insufficient resource (UC_ERR_RESOURCE)";
+        case UC_ERR_EXCEPTION:
+            return "Unhandled CPU exception (UC_ERR_EXCEPTION)";
     }
 }
 
@@ -148,9 +153,6 @@ uc_err uc_open(uc_arch arch, uc_mode mode, uc_engine **result)
         uc->arch = arch;
         uc->mode = mode;
 
-        // uc->cpus = QTAILQ_HEAD_INITIALIZER(uc->cpus);
-        uc->cpus.tqh_first = NULL;
-        uc->cpus.tqh_last = &(uc->cpus.tqh_first);
         // uc->ram_list = { .blocks = QTAILQ_HEAD_INITIALIZER(ram_list.blocks) };
         uc->ram_list.blocks.tqh_first = NULL;
         uc->ram_list.blocks.tqh_last = &(uc->ram_list.blocks.tqh_first);
@@ -282,29 +284,53 @@ uc_err uc_close(uc_engine *uc)
     struct list_item *cur;
     struct hook *hook;
 
+    // Cleanup internally.
     if (uc->release)
         uc->release(uc->tcg_ctx);
+    g_free(uc->tcg_ctx);
 
-#ifndef _WIN32
+    // Cleanup CPU.
+    g_free(uc->cpu->tcg_as_listener);
+    g_free(uc->cpu->thread);
+    g_free(uc->cpu->halt_cond);
+
+    // Cleanup all objects.
+    OBJECT(uc->machine_state->accelerator)->ref = 1;
+    OBJECT(uc->machine_state)->ref = 1;
+    OBJECT(uc->owner)->ref = 1;
+    OBJECT(uc->root)->ref = 1;
+
+    object_unref(uc, OBJECT(uc->machine_state->accelerator));
+    object_unref(uc, OBJECT(uc->machine_state));
+    object_unref(uc, OBJECT(uc->cpu));
+    object_unref(uc, OBJECT(&uc->io_mem_notdirty));
+    object_unref(uc, OBJECT(&uc->io_mem_unassigned));
+    object_unref(uc, OBJECT(&uc->io_mem_rom));
+    object_unref(uc, OBJECT(uc->root));
+
+    // System memory.
+    g_free(uc->system_memory);
+
+    // Thread relateds.
+    if (uc->qemu_thread_data)
+        free(uc->qemu_thread_data);
+
+    qemu_mutex_destroy(&uc->qemu_global_mutex);
+    qemu_cond_destroy(&uc->qemu_cpu_cond);
+
+    // Other auxilaries.
     free(uc->l1_map);
-#endif
 
     if (uc->bounce.buffer) {
         free(uc->bounce.buffer);
     }
 
-    g_free(uc->tcg_ctx);
-
-    free((void*) uc->system_memory->name);
-    g_free(uc->system_memory);
+    g_hash_table_foreach(uc->type_table, free_table, uc);
     g_hash_table_destroy(uc->type_table);
 
     for (i = 0; i < DIRTY_MEMORY_NUM; i++) {
         free(uc->ram_list.dirty_memory[i]);
     }
-
-    // TODO: remove uc->root    (created with object_new())
-    uc->root->free(uc->root);
 
     // free hooks and hook lists
     for (i = 0; i < UC_HOOK_MAX; i++) {
@@ -332,10 +358,10 @@ uc_err uc_close(uc_engine *uc)
 
 
 UNICORN_EXPORT
-uc_err uc_reg_read(uc_engine *uc, int regid, void *value)
+uc_err uc_reg_read_batch(uc_engine *uc, int *ids, void **vals, int count)
 {
     if (uc->reg_read)
-        uc->reg_read(uc, regid, value);
+        uc->reg_read(uc, (unsigned int *)ids, vals, count);
     else
         return -1;  // FIXME: need a proper uc_err
 
@@ -344,14 +370,28 @@ uc_err uc_reg_read(uc_engine *uc, int regid, void *value)
 
 
 UNICORN_EXPORT
-uc_err uc_reg_write(uc_engine *uc, int regid, const void *value)
+uc_err uc_reg_write_batch(uc_engine *uc, int *ids, void *const *vals, int count)
 {
     if (uc->reg_write)
-        uc->reg_write(uc, regid, value);
+        uc->reg_write(uc, (unsigned int *)ids, vals, count);
     else
         return -1;  // FIXME: need a proper uc_err
 
     return UC_ERR_OK;
+}
+
+
+UNICORN_EXPORT
+uc_err uc_reg_read(uc_engine *uc, int regid, void *value)
+{
+    return uc_reg_read_batch(uc, &regid, &value, 1);
+}
+
+
+UNICORN_EXPORT
+uc_err uc_reg_write(uc_engine *uc, int regid, const void *value)
+{
+    return uc_reg_write_batch(uc, &regid, (void *const *)&value, 1);
 }
 
 
@@ -559,14 +599,13 @@ uc_err uc_emu_start(uc_engine* uc, uint64_t begin, uint64_t until, uint64_t time
 
     uc->addr_end = until;
 
+    if (timeout)
+        enable_emu_timer(uc, timeout * 1000);   // microseconds -> nanoseconds
+
     if (uc->vm_start(uc)) {
         return UC_ERR_RESOURCE;
     }
 
-    if (timeout)
-        enable_emu_timer(uc, timeout * 1000);   // microseconds -> nanoseconds
-
-    uc->pause_all_vcpus(uc);
     // emulation is done
     uc->emulation_done = true;
 
@@ -586,6 +625,7 @@ uc_err uc_emu_stop(uc_engine *uc)
         return UC_ERR_OK;
 
     uc->stop_request = true;
+    // TODO: make this atomic somehow?
     if (uc->current_cpu) {
         // exit the current TB
         cpu_exit(uc->current_cpu);
@@ -627,7 +667,7 @@ static uc_err mem_map(uc_engine *uc, uint64_t address, size_t size, uint32_t per
         return UC_ERR_NOMEM;
 
     if ((uc->mapped_block_count & (MEM_BLOCK_INCR - 1)) == 0) {  //time to grow
-        regions = (MemoryRegion**)realloc(uc->mapped_blocks,
+        regions = (MemoryRegion**)g_realloc(uc->mapped_blocks,
                 sizeof(MemoryRegion*) * (uc->mapped_block_count + MEM_BLOCK_INCR));
         if (regions == NULL) {
             return UC_ERR_NOMEM;
@@ -710,7 +750,7 @@ uc_err uc_mem_map_ptr(uc_engine *uc, uint64_t address, size_t size, uint32_t per
 // Generally used in prepartion for splitting a MemoryRegion.
 static uint8_t *copy_region(struct uc_struct *uc, MemoryRegion *mr)
 {
-    uint8_t *block = (uint8_t *)malloc(int128_get64(mr->size));
+    uint8_t *block = (uint8_t *)g_malloc0(int128_get64(mr->size));
     if (block != NULL) {
         uc_err err = uc_mem_read(uc, mr->addr, block, int128_get64(mr->size));
         if (err != UC_ERR_OK) {
@@ -1030,10 +1070,14 @@ UNICORN_EXPORT
 uc_err uc_hook_del(uc_engine *uc, uc_hook hh)
 {
     int i;
-    struct hook *hook;
+    struct hook *hook = (struct hook *)hh;
+    // we can't dereference hook->type if hook is invalid
+    // so for now we need to iterate over all possible types to remove the hook
+    // which is less efficient
+    // an optimization would be to align the hook pointer
+    // and store the type mask in the hook pointer.
     for (i = 0; i < UC_HOOK_MAX; i++) {
-        if (list_remove(&uc->hook[i], (void *)hh)) {
-            hook = (struct hook *)hh;
+        if (list_remove(&uc->hook[i], (void *)hook)) {
             if (--hook->refs == 0) {
                 free(hook);
             }
@@ -1073,7 +1117,7 @@ uint32_t uc_mem_regions(uc_engine *uc, uc_mem_region **regions, uint32_t *count)
     *count = uc->mapped_block_count;
 
     if (*count) {
-        r = malloc(*count * sizeof(uc_mem_region));
+        r = g_malloc0(*count * sizeof(uc_mem_region));
         if (r == NULL) {
             // out of memory
             return UC_ERR_NOMEM;
@@ -1098,7 +1142,7 @@ uc_err uc_query(uc_engine *uc, uc_query_type type, size_t *result)
         *result = uc->target_page_size;
         return UC_ERR_OK;
     }
-    
+
     switch(uc->arch) {
         case UC_ARCH_ARM:
             return uc->query(uc, type, result);
@@ -1106,5 +1150,71 @@ uc_err uc_query(uc_engine *uc, uc_query_type type, size_t *result)
             return UC_ERR_ARG;
     }
 
+    return UC_ERR_OK;
+}
+
+static size_t cpu_context_size(uc_arch arch, uc_mode mode)
+{
+    // each of these constants is defined by offsetof(CPUXYZState, tlb_table)
+    // tbl_table is the first entry in the CPU_COMMON macro, so it marks the end
+    // of the interesting CPU registers
+    switch (arch) {
+#ifdef UNICORN_HAS_M68K
+        case UC_ARCH_M68K:  return M68K_REGS_STORAGE_SIZE;
+#endif
+#ifdef UNICORN_HAS_X86
+        case UC_ARCH_X86:   return X86_REGS_STORAGE_SIZE;
+#endif
+#ifdef UNICORN_HAS_ARM
+        case UC_ARCH_ARM:   return ARM_REGS_STORAGE_SIZE;
+#endif
+#ifdef UNICORN_HAS_ARM64
+        case UC_ARCH_ARM64: return ARM64_REGS_STORAGE_SIZE;
+#endif
+#ifdef UNICORN_HAS_MIPS
+        case UC_ARCH_MIPS:  return mode & UC_MODE_MIPS64 ? MIPS64_REGS_STORAGE_SIZE : MIPS_REGS_STORAGE_SIZE;
+#endif
+#ifdef UNICORN_HAS_SPARC
+        case UC_ARCH_SPARC: return mode & UC_MODE_SPARC64 ? SPARC64_REGS_STORAGE_SIZE : SPARC_REGS_STORAGE_SIZE;
+#endif
+        default: return 0;
+    }
+}
+
+UNICORN_EXPORT
+uc_err uc_context_alloc(uc_engine *uc, uc_context **context)
+{
+    struct uc_context **_context = context;
+    size_t size = cpu_context_size(uc->arch, uc->mode);
+
+    *_context = malloc(size + sizeof(uc_context));
+    if (*_context) {
+        (*_context)->size = size;
+        return UC_ERR_OK;
+    } else {
+        return UC_ERR_NOMEM;
+    }
+}
+
+UNICORN_EXPORT
+uc_err uc_context_free(uc_context *context)
+{
+    free(context);
+    return UC_ERR_OK;
+}
+
+UNICORN_EXPORT
+uc_err uc_context_save(uc_engine *uc, uc_context *context)
+{
+    struct uc_context *_context = context;
+    memcpy(_context->data, uc->cpu->env_ptr, _context->size);
+    return UC_ERR_OK;
+}
+
+UNICORN_EXPORT
+uc_err uc_context_restore(uc_engine *uc, uc_context *context)
+{
+    struct uc_context *_context = context;
+    memcpy(uc->cpu->env_ptr, _context->data, _context->size);
     return UC_ERR_OK;
 }

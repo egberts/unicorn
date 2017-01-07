@@ -9,6 +9,14 @@
 #include "unicorn_common.h"
 #include "uc_priv.h"
 
+// prevent the lines from being compiled twice
+#ifdef TARGET_WORDS_BIGENDIAN
+#ifdef TARGET_MIPS64
+const int MIPS64_REGS_STORAGE_SIZE = offsetof(CPUMIPSState, tlb_table);
+#else // MIPS32
+const int MIPS_REGS_STORAGE_SIZE = offsetof(CPUMIPSState, tlb_table);
+#endif
+#endif
 
 static uint64_t mips_mem_redirect(uint64_t address)
 {
@@ -30,51 +38,88 @@ static void mips_set_pc(struct uc_struct *uc, uint64_t address)
     ((CPUMIPSState *)uc->current_cpu->env_ptr)->active_tc.PC = address;
 }
 
+
+void mips_release(void *ctx);
+void mips_release(void *ctx)
+{
+    int i;
+    TCGContext *tcg_ctx = (TCGContext *) ctx;
+    release_common(ctx);
+    MIPSCPU* cpu = MIPS_CPU(tcg_ctx->uc, tcg_ctx->uc->cpu);
+    g_free(cpu->env.tlb);
+    g_free(cpu->env.mvp);
+
+    for (i = 0; i < MIPS_DSP_ACC; i++) {
+        g_free(tcg_ctx->cpu_HI[i]);
+        g_free(tcg_ctx->cpu_LO[i]);
+    }
+
+    for (i = 0; i < 32; i++) {
+        g_free(tcg_ctx->cpu_gpr[i]);
+    }
+
+    g_free(tcg_ctx->cpu_PC);
+    g_free(tcg_ctx->btarget);
+    g_free(tcg_ctx->bcond);
+    g_free(tcg_ctx->cpu_dspctrl);
+
+    g_free(tcg_ctx->tb_ctx.tbs);
+}
+
 void mips_reg_reset(struct uc_struct *uc)
 {
     (void)uc;
-    CPUArchState *env = first_cpu->env_ptr;
+    CPUArchState *env = uc->cpu->env_ptr;
     memset(env->active_tc.gpr, 0, sizeof(env->active_tc.gpr));
 
     env->active_tc.PC = 0;
 }
 
-int mips_reg_read(struct uc_struct *uc, unsigned int regid, void *value)
+int mips_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int count)
 {
-    CPUState *mycpu = first_cpu;
+    CPUState *mycpu = uc->cpu;
+    int i;
 
-    if (regid >= UC_MIPS_REG_0 && regid <= UC_MIPS_REG_31)
-        *(int32_t *)value = MIPS_CPU(uc, mycpu)->env.active_tc.gpr[regid - UC_MIPS_REG_0];
-    else {
-        switch(regid) {
-            default: break;
-            case UC_MIPS_REG_PC:
-                     *(int32_t *)value = MIPS_CPU(uc, mycpu)->env.active_tc.PC;
-                     break;
+    for (i = 0; i < count; i++) {
+        unsigned int regid = regs[i];
+        void *value = vals[i];
+        if (regid >= UC_MIPS_REG_0 && regid <= UC_MIPS_REG_31)
+            *(int32_t *)value = MIPS_CPU(uc, mycpu)->env.active_tc.gpr[regid - UC_MIPS_REG_0];
+        else {
+            switch(regid) {
+                default: break;
+                case UC_MIPS_REG_PC:
+                         *(int32_t *)value = MIPS_CPU(uc, mycpu)->env.active_tc.PC;
+                         break;
+            }
         }
     }
 
     return 0;
 }
 
-int mips_reg_write(struct uc_struct *uc, unsigned int regid, const void *value)
+int mips_reg_write(struct uc_struct *uc, unsigned int *regs, void *const *vals, int count)
 {
-    CPUState *mycpu = first_cpu;
+    CPUState *mycpu = uc->cpu;
+    int i;
 
-    if (regid >= UC_MIPS_REG_0 && regid <= UC_MIPS_REG_31)
-        MIPS_CPU(uc, mycpu)->env.active_tc.gpr[regid - UC_MIPS_REG_0] = *(uint32_t *)value;
-    else {
-        switch(regid) {
-            default: break;
-            case UC_MIPS_REG_PC:
-                     MIPS_CPU(uc, mycpu)->env.active_tc.PC = *(uint32_t *)value;
-                     // force to quit execution and flush TB
-                     uc->quit_request = true;
-                     uc_emu_stop(uc);
-                     break;
+    for (i = 0; i < count; i++) {
+        unsigned int regid = regs[i];
+        const void *value = vals[i];
+        if (regid >= UC_MIPS_REG_0 && regid <= UC_MIPS_REG_31)
+            MIPS_CPU(uc, mycpu)->env.active_tc.gpr[regid - UC_MIPS_REG_0] = *(uint32_t *)value;
+        else {
+            switch(regid) {
+                default: break;
+                case UC_MIPS_REG_PC:
+                         MIPS_CPU(uc, mycpu)->env.active_tc.PC = *(uint32_t *)value;
+                         // force to quit execution and flush TB
+                         uc->quit_request = true;
+                         uc_emu_stop(uc);
+                         break;
+            }
         }
     }
-
 
     return 0;
 }
@@ -100,6 +145,7 @@ __attribute__ ((visibility ("default")))
     uc->reg_read = mips_reg_read;
     uc->reg_write = mips_reg_write;
     uc->reg_reset = mips_reg_reset;
+    uc->release = mips_release;
     uc->set_pc = mips_set_pc;
     uc->mem_redirect = mips_mem_redirect;
     uc_common_init(uc);

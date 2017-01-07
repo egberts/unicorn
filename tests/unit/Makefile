@@ -1,12 +1,25 @@
-
 CFLAGS += -Wall -Werror -Wno-unused-function -g
-CFLAGS += -L ../../
-CFLAGS += -lcmocka -lunicorn
-CFLAGS += -I ../../include
+CFLAGS += -L ../../ -I ../../include
+CFLAGS += -L ../../cmocka/src -I ../../cmocka/include
+LDLIBS += -lcmocka -lunicorn
 
-ALL_TESTS = test_sanity test_x86 test_mem_map test_mem_high test_mem_map_ptr \
-	test_tb_x86 test_multihook test_pc_change test_x86_soft_paging \
-        test_hookcounts
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S), Linux)
+LDLIBS += -lrt
+endif
+
+
+EXECUTE_VARS = LD_LIBRARY_PATH=../../cmocka/src:../../ DYLD_LIBRARY_PATH=../../
+
+ifeq ($(UNICORN_ASAN),yes)
+CC = clang -fsanitize=address -fno-omit-frame-pointer
+CXX = clang++ -fsanitize=address -fno-omit-frame-pointer
+AR = llvm-ar
+LDFLAGS := -fsanitize=address ${LDFLAGS}
+endif
+
+ALL_TESTS_SOURCES = $(wildcard *.c)
+ALL_TESTS = $(ALL_TESTS_SOURCES:%.c=%)
 
 .PHONY: all
 all: ${ALL_TESTS}
@@ -16,29 +29,17 @@ clean:
 	rm -rf ${ALL_TESTS}
 
 .PHONY: test
-test: export LD_LIBRARY_PATH=../../
 test: ${ALL_TESTS}
-	./test_sanity
-	./test_x86
-	./test_mem_map
-	./test_mem_map_ptr
-	./test_mem_high
-	./test_tb_x86
-	./test_multihook
-	./test_pc_change
-	./test_x86_soft_paging
-	./test_hookcounts
-
-test_sanity: test_sanity.c
-test_x86: test_x86.c
-test_mem_map: test_mem_map.c
-test_mem_map_ptr: test_mem_map_ptr.c
-test_mem_high: test_mem_high.c
-test_tb_x86: test_tb_x86.c
-test_multihook: test_multihook.c
-test_pc_change: test_pc_change.c
-test_x86_soft_paging: test_x86_soft_paging.c
-test_hookcounts: test_hookcounts.c
-
-${ALL_TESTS}:
-	${CC} ${CFLAGS} -o $@ $^
+	${EXECUTE_VARS} ./test_sanity
+	${EXECUTE_VARS} ./test_x86
+	${EXECUTE_VARS} ./test_mem_map
+	${EXECUTE_VARS} ./test_mem_map_ptr
+	${EXECUTE_VARS} ./test_mem_high
+	${EXECUTE_VARS} ./test_multihook
+	${EXECUTE_VARS} ./test_pc_change
+	${EXECUTE_VARS} ./test_hookcounts
+	echo "skipping test_tb_x86"
+	echo "skipping test_x86_soft_paging"
+	echo "skipping test_hang"
+	echo "skipping test_x86_sh1_enter_leave"
+	echo "skipping test_x86_rip_bug"

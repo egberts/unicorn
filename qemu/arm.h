@@ -14,6 +14,7 @@
 #define memory_map_ptr memory_map_ptr_arm
 #define memory_unmap memory_unmap_arm
 #define memory_free memory_free_arm
+#define free_code_gen_buffer free_code_gen_buffer_arm
 #define helper_raise_exception helper_raise_exception_arm
 #define tcg_enabled tcg_enabled_arm
 #define tcg_exec_init tcg_exec_init_arm
@@ -2175,19 +2176,15 @@
 #define object_property_allow_set_link object_property_allow_set_link_arm
 #define object_property_del object_property_del_arm
 #define object_property_del_all object_property_del_all_arm
-#define object_property_del_child object_property_del_child_arm
 #define object_property_find object_property_find_arm
 #define object_property_get object_property_get_arm
 #define object_property_get_bool object_property_get_bool_arm
-#define object_property_get_enum object_property_get_enum_arm
 #define object_property_get_int object_property_get_int_arm
 #define object_property_get_link object_property_get_link_arm
 #define object_property_get_qobject object_property_get_qobject_arm
 #define object_property_get_str object_property_get_str_arm
 #define object_property_get_type object_property_get_type_arm
-#define object_property_get_uint16List object_property_get_uint16List_arm
 #define object_property_is_child object_property_is_child_arm
-#define object_property_print object_property_print_arm
 #define object_property_set object_property_set_arm
 #define object_property_set_description object_property_set_description_arm
 #define object_property_set_link object_property_set_link_arm
@@ -2258,7 +2255,6 @@
 #define parse_value parse_value_arm
 #define par_write par_write_arm
 #define patch_reloc patch_reloc_arm
-#define pause_all_vcpus pause_all_vcpus_arm
 #define phys_map_node_alloc phys_map_node_alloc_arm
 #define phys_map_node_reserve phys_map_node_reserve_arm
 #define phys_mem_alloc phys_mem_alloc_arm
@@ -2417,9 +2413,6 @@
 #define qemu_clock_get_us qemu_clock_get_us_arm
 #define qemu_clock_ptr qemu_clock_ptr_arm
 #define qemu_clocks qemu_clocks_arm
-#define qemu_cond_destroy qemu_cond_destroy_arm
-#define qemu_cpu_is_self qemu_cpu_is_self_arm
-#define qemu_cpu_kick_thread qemu_cpu_kick_thread_arm
 #define qemu_daemon qemu_daemon_arm
 #define qemu_event_destroy qemu_event_destroy_arm
 #define qemu_event_init qemu_event_init_arm
@@ -2431,7 +2424,6 @@
 #define qemu_get_cpu qemu_get_cpu_arm
 #define qemu_get_guest_memory_mapping qemu_get_guest_memory_mapping_arm
 #define qemu_get_guest_simple_memory_mapping qemu_get_guest_simple_memory_mapping_arm
-#define qemu_get_local_state_pathname qemu_get_local_state_pathname_arm
 #define qemu_get_ram_block qemu_get_ram_block_arm
 #define qemu_get_ram_block_host_ptr qemu_get_ram_block_host_ptr_arm
 #define qemu_get_ram_fd qemu_get_ram_fd_arm
@@ -2445,7 +2437,6 @@
 #define qemu_log_flush qemu_log_flush_arm
 #define qemu_loglevel_mask qemu_loglevel_mask_arm
 #define qemu_log_vprintf qemu_log_vprintf_arm
-#define qemu_mutex_destroy qemu_mutex_destroy_arm
 #define qemu_mutex_lock_ramlist qemu_mutex_lock_ramlist_arm
 #define qemu_mutex_trylock qemu_mutex_trylock_arm
 #define qemu_mutex_unlock_ramlist qemu_mutex_unlock_ramlist_arm
@@ -2516,9 +2507,7 @@
 #define qemu_st_helpers qemu_st_helpers_arm
 #define qemu_strnlen qemu_strnlen_arm
 #define qemu_strsep qemu_strsep_arm
-#define qemu_tcg_cpu_thread_fn qemu_tcg_cpu_thread_fn_arm
 #define qemu_tcg_init_vcpu qemu_tcg_init_vcpu_arm
-#define qemu_thread_exit qemu_thread_exit_arm
 #define qemu_try_memalign qemu_try_memalign_arm
 #define qentry_destroy qentry_destroy_arm
 #define qerror_human qerror_human_arm
@@ -2723,13 +2712,6 @@
 #define string_input_get_visitor string_input_get_visitor_arm
 #define string_input_visitor_cleanup string_input_visitor_cleanup_arm
 #define string_input_visitor_new string_input_visitor_new_arm
-#define string_output_append string_output_append_arm
-#define string_output_append_range string_output_append_range_arm
-#define string_output_get_string string_output_get_string_arm
-#define string_output_get_visitor string_output_get_visitor_arm
-#define string_output_set string_output_set_arm
-#define string_output_visitor_cleanup string_output_visitor_cleanup_arm
-#define string_output_visitor_new string_output_visitor_new_arm
 #define stristart stristart_arm
 #define strongarm_cp_reginfo strongarm_cp_reginfo_arm
 #define strpadcpy strpadcpy_arm

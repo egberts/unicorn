@@ -14,6 +14,7 @@
 #define memory_map_ptr memory_map_ptr_mipsel
 #define memory_unmap memory_unmap_mipsel
 #define memory_free memory_free_mipsel
+#define free_code_gen_buffer free_code_gen_buffer_mipsel
 #define helper_raise_exception helper_raise_exception_mipsel
 #define tcg_enabled tcg_enabled_mipsel
 #define tcg_exec_init tcg_exec_init_mipsel
@@ -2175,19 +2176,15 @@
 #define object_property_allow_set_link object_property_allow_set_link_mipsel
 #define object_property_del object_property_del_mipsel
 #define object_property_del_all object_property_del_all_mipsel
-#define object_property_del_child object_property_del_child_mipsel
 #define object_property_find object_property_find_mipsel
 #define object_property_get object_property_get_mipsel
 #define object_property_get_bool object_property_get_bool_mipsel
-#define object_property_get_enum object_property_get_enum_mipsel
 #define object_property_get_int object_property_get_int_mipsel
 #define object_property_get_link object_property_get_link_mipsel
 #define object_property_get_qobject object_property_get_qobject_mipsel
 #define object_property_get_str object_property_get_str_mipsel
 #define object_property_get_type object_property_get_type_mipsel
-#define object_property_get_uint16List object_property_get_uint16List_mipsel
 #define object_property_is_child object_property_is_child_mipsel
-#define object_property_print object_property_print_mipsel
 #define object_property_set object_property_set_mipsel
 #define object_property_set_description object_property_set_description_mipsel
 #define object_property_set_link object_property_set_link_mipsel
@@ -2258,7 +2255,6 @@
 #define parse_value parse_value_mipsel
 #define par_write par_write_mipsel
 #define patch_reloc patch_reloc_mipsel
-#define pause_all_vcpus pause_all_vcpus_mipsel
 #define phys_map_node_alloc phys_map_node_alloc_mipsel
 #define phys_map_node_reserve phys_map_node_reserve_mipsel
 #define phys_mem_alloc phys_mem_alloc_mipsel
@@ -2417,9 +2413,6 @@
 #define qemu_clock_get_us qemu_clock_get_us_mipsel
 #define qemu_clock_ptr qemu_clock_ptr_mipsel
 #define qemu_clocks qemu_clocks_mipsel
-#define qemu_cond_destroy qemu_cond_destroy_mipsel
-#define qemu_cpu_is_self qemu_cpu_is_self_mipsel
-#define qemu_cpu_kick_thread qemu_cpu_kick_thread_mipsel
 #define qemu_daemon qemu_daemon_mipsel
 #define qemu_event_destroy qemu_event_destroy_mipsel
 #define qemu_event_init qemu_event_init_mipsel
@@ -2431,7 +2424,6 @@
 #define qemu_get_cpu qemu_get_cpu_mipsel
 #define qemu_get_guest_memory_mapping qemu_get_guest_memory_mapping_mipsel
 #define qemu_get_guest_simple_memory_mapping qemu_get_guest_simple_memory_mapping_mipsel
-#define qemu_get_local_state_pathname qemu_get_local_state_pathname_mipsel
 #define qemu_get_ram_block qemu_get_ram_block_mipsel
 #define qemu_get_ram_block_host_ptr qemu_get_ram_block_host_ptr_mipsel
 #define qemu_get_ram_fd qemu_get_ram_fd_mipsel
@@ -2445,7 +2437,6 @@
 #define qemu_log_flush qemu_log_flush_mipsel
 #define qemu_loglevel_mask qemu_loglevel_mask_mipsel
 #define qemu_log_vprintf qemu_log_vprintf_mipsel
-#define qemu_mutex_destroy qemu_mutex_destroy_mipsel
 #define qemu_mutex_lock_ramlist qemu_mutex_lock_ramlist_mipsel
 #define qemu_mutex_trylock qemu_mutex_trylock_mipsel
 #define qemu_mutex_unlock_ramlist qemu_mutex_unlock_ramlist_mipsel
@@ -2516,9 +2507,7 @@
 #define qemu_st_helpers qemu_st_helpers_mipsel
 #define qemu_strnlen qemu_strnlen_mipsel
 #define qemu_strsep qemu_strsep_mipsel
-#define qemu_tcg_cpu_thread_fn qemu_tcg_cpu_thread_fn_mipsel
 #define qemu_tcg_init_vcpu qemu_tcg_init_vcpu_mipsel
-#define qemu_thread_exit qemu_thread_exit_mipsel
 #define qemu_try_memalign qemu_try_memalign_mipsel
 #define qentry_destroy qentry_destroy_mipsel
 #define qerror_human qerror_human_mipsel
@@ -2723,13 +2712,6 @@
 #define string_input_get_visitor string_input_get_visitor_mipsel
 #define string_input_visitor_cleanup string_input_visitor_cleanup_mipsel
 #define string_input_visitor_new string_input_visitor_new_mipsel
-#define string_output_append string_output_append_mipsel
-#define string_output_append_range string_output_append_range_mipsel
-#define string_output_get_string string_output_get_string_mipsel
-#define string_output_get_visitor string_output_get_visitor_mipsel
-#define string_output_set string_output_set_mipsel
-#define string_output_visitor_cleanup string_output_visitor_cleanup_mipsel
-#define string_output_visitor_new string_output_visitor_new_mipsel
 #define stristart stristart_mipsel
 #define strongarm_cp_reginfo strongarm_cp_reginfo_mipsel
 #define strpadcpy strpadcpy_mipsel
@@ -4077,4 +4059,5 @@
 #define mips_reg_write mips_reg_write_mipsel
 #define mips_tcg_init mips_tcg_init_mipsel
 #define mips_cpu_list mips_cpu_list_mipsel
+#define mips_release mips_release_mipsel
 #endif

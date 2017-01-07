@@ -51,8 +51,6 @@ extern int daemon(int, int);
 #include <termios.h>
 #include <unistd.h>
 
-#include <glib/gprintf.h>
-
 #include "config-host.h"
 #include "sysemu/sysemu.h"
 #include <sys/mman.h>
@@ -70,15 +68,6 @@ extern int daemon(int, int);
 #ifdef __FreeBSD__
 #include <sys/sysctl.h>
 #endif
-
-int qemu_get_thread_id(void)
-{
-#if defined(__linux__)
-    return syscall(SYS_gettid);
-#else
-    return getpid();
-#endif
-}
 
 int qemu_daemon(int nochdir, int noclose)
 {
@@ -190,13 +179,6 @@ int qemu_pipe(int pipefd[2])
     }
 
     return ret;
-}
-
-char *
-qemu_get_local_state_pathname(const char *relative_pathname)
-{
-    return g_strdup_printf("%s/%s", CONFIG_QEMU_LOCALSTATEDIR,
-                           relative_pathname);
 }
 
 void qemu_set_tty_echo(int fd, bool echo)
